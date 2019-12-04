@@ -27,68 +27,13 @@ import pyhecdss
 import os,sys
 import shutil
 
-
-def main():
+def callDCD(supmodel,leachoption,endyear,outputfile):
     owd = os.getcwd()
-    modelparafile = "./NODCU/DCD_parameters.inp"
-    fmp = open(modelparafile,"r")
-    for line in fmp:
-        if line:
-            if not("#" in line):
-                supmodel = int(line.split("=")[1]) 
-                
-    dir_dst = "../DETAW/"
-    os.chdir(dir_dst)
-    months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-    
-    if supmodel == 1:
-        inputfile = "./Input/historical_study/LODI_PT.csv"
-        f0 = open(inputfile, 'r')
-        templ = ""
-        endyear = 0
-        for line in f0:
-            if line:
-                templ = line
-                if line.split(",")[5].strip()=="0" and line.split(",")[6].strip()=="0":
-                    break
-        endyear = templ.split(",")[1]  
-        endmonth = int(templ.split(",")[2])
-        outputfile = "DCD_"+months[endmonth-1]+endyear+".dss"        
-    elif supmodel == 3:
-        inputfile = "./Input/planning_study/LODI_PT.csv"
-        f0 = open(inputfile, 'r')
-        templ = ""
-        endyear = 0
-        for line in f0:
-            if line:
-                templ = line
-                if line.split(",")[5].strip()=="0" and line.split(",")[6].strip()=="0":
-                    break
-        endyear = templ.split(",")[1]  
-        endmonth = int(templ.split(",")[2])
-        outputfile = "DCD_"+months[endmonth-1]+endyear+".dss"        
-    elif supmodel == 2:
-        inputfile = "./Input/historical_study/LODI_PT.csv"
-        f0 = open(inputfile, 'r')
-        templ = ""
-        endyear = 0
-        for line in f0:
-            if line:
-                templ = line
-                if line.split(",")[5].strip()=="0" and line.split(",")[6].strip()=="0":
-                    break
-        endyear = templ.split(",")[1]  
-        endmonth = int(templ.split(",")[2])
-        outputfile = "DCD_noWS_"+months[endmonth-1]+endyear+".dss"
-    status=os.system('python DETAW.py')
-    print("output file =", outputfile)
-        
-    os.chdir(owd)
-    
     dir_dst = ".\\NODCU\\DCD_Cal\\"
     os.chdir(dir_dst)
-    os.mkdir(".\DCD_outputs")
-    shutil.copy('DETAW_CD.exe',".\DCD_outputs")
+    if not os.path.exists(".\DCD_outputs"):
+        os.mkdir(".\DCD_outputs")
+    shutil.copy('DCD_kernel.exe',".\DCD_outputs")
     shutil.copy('WYTYPES',".\DCD_outputs")
     os.chdir(".\DCD_outputs")
     
@@ -124,9 +69,11 @@ def main():
     # Do you want to creat an ascii file?
     os.environ['ascii']='Y'
     # The dss file to save output
-    os.environ['dssfile']=outputfile        
+    os.environ['dssfile']=outputfile 
+    # The leach scale factor   
+    os.environ['leachscale']=str(leachoption)
         
-    status=os.system('DETAW_CD.exe')
+    status=os.system('DCD_kernel.exe')
     
     status=os.system('python ../converttoDSS.py junk1_1.txt')
     status=os.system('python ../converttoDSS.py junk1_2.txt')
@@ -137,7 +84,9 @@ def main():
     if supmodel == 1:
         shutil.copy(outputfile,owd+"\\Output\\DSM2\\")
     elif supmodel == 2:
-        shutil.copy(outputfile,owd+"\\Output\\SCHISM\\")
+        tempfile = outputfile.split(".")[0].strip()+"_noWS_leach"+str(leachoption)+".dss"
+        os.rename(outputfile,tempfile)
+        shutil.copy(tempfile,owd+"\\Output\\SCHISM\\")        
     elif supmodel == 3:
         status=os.system('python ../converttoDSS.py roisl.txt')
         status=os.system('python ../converttoDSS.py gwbyisl.txt')
@@ -153,8 +102,63 @@ def main():
         shutil.copy(tempfile,owd+"\\Output\\CALSIM3\\")
     os.chdir("../")
     shutil.rmtree(".\DCD_outputs")
+    os.chdir(owd)
+    
+def callDETAW(supmodel):
+    owd = os.getcwd()
+    dir_dst = "../DETAW/"
+    os.chdir(dir_dst)
+    months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    
+    if supmodel == 1 or supmodel == 2:
+        inputfile = "./Input/historical_study/LODI_PT.csv"
+    elif supmodel == 3:
+        inputfile = "./Input/planning_study/LODI_PT.csv"
+        
+    f0 = open(inputfile, 'r')
+    templ = ""
+    endyear = 0
+    for line in f0:
+        if line:
+            templ = line
+            if line.split(",")[5].strip()=="0" and line.split(",")[6].strip()=="0":
+                break
+    endyear = templ.split(",")[1]  
+    endmonth = int(templ.split(",")[2])
+    outputfile = "DCD_"+months[endmonth-1]+endyear+".dss" 
+    status=os.system('python DETAW.py')
+    os.chdir(owd)
+    return(endyear,outputfile)
 
-    print("finish")
+def main():
+    owd = os.getcwd()
+    modelparafile = "./NODCU/DCD_parameters.inp"
+    fmp = open(modelparafile,"r")
+    modeloption = 0
+    outputfile = ""
+    for line in fmp:
+        if line:
+            if not("#" in line):
+                if "Model to streamline" in line:
+                    modeloption = int(line.split("=")[1]) 
+                if "Leach scale factor" in line:
+                    leachoption = int(line.split("=")[1])
+    
+    if modeloption == 2:
+        (endyear,outputfile) = callDETAW(1)
+        callDCD(1,leachoption,endyear,outputfile)
+        shutil.copy(owd+"\\Output\\DSM2\\"+outputfile,owd+"\\Output\\SCHISM\\")
+        tempfile = outputfile.split(".")[0].strip()+"_leach"+str(leachoption)+".dss"
+        if os.path.exists(owd+"\\Output\\SCHISM\\"+tempfile):
+            os.remove(owd+"\\Output\\SCHISM\\"+tempfile)
+        os.rename(owd+"\\Output\\SCHISM\\"+outputfile,owd+"\\Output\\SCHISM\\"+tempfile)
+        (endyear,outputfile) = callDETAW(modeloption)
+        callDCD(modeloption,leachoption,endyear,outputfile)
+    elif modeloption == 1 or modeloption == 3:
+        (endyear,outputfile) = callDETAW(modeloption)
+        callDCD(modeloption,leachoption,endyear,outputfile)
+    print("output file =", outputfile)
+    
 
 if __name__ == "__main__":
     main()
