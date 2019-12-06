@@ -104,7 +104,7 @@ def callDCD(supmodel,leachoption,endyear,outputfile):
     shutil.rmtree(".\DCD_outputs")
     os.chdir(owd)
     
-def callDETAW(supmodel):
+def callDETAW(supmodel,leachoption):
     owd = os.getcwd()
     dir_dst = "../DETAW/"
     os.chdir(dir_dst)
@@ -125,7 +125,7 @@ def callDETAW(supmodel):
                 break
     endyear = templ.split(",")[1]  
     endmonth = int(templ.split(",")[2])
-    outputfile = "DCD_"+months[endmonth-1]+endyear+".dss" 
+    outputfile = "DCD_"+months[endmonth-1]+endyear+"_Lch"+str(leachoption)+".dss" 
     status=os.system('python DETAW.py')
     os.chdir(owd)
     return(endyear,outputfile)
@@ -144,19 +144,21 @@ def main():
                 if "Leach scale factor" in line:
                     leachoption = int(line.split("=")[1])
     
-    if modeloption == 2:
-        (endyear,outputfile) = callDETAW(1)
-        callDCD(1,leachoption,endyear,outputfile)
-        shutil.copy(owd+"\\Output\\DSM2\\"+outputfile,owd+"\\Output\\SCHISM\\")
-        tempfile = outputfile.split(".")[0].strip()+"_leach"+str(leachoption)+".dss"
-        if os.path.exists(owd+"\\Output\\SCHISM\\"+tempfile):
-            os.remove(owd+"\\Output\\SCHISM\\"+tempfile)
-        os.rename(owd+"\\Output\\SCHISM\\"+outputfile,owd+"\\Output\\SCHISM\\"+tempfile)
-        (endyear,outputfile) = callDETAW(modeloption)
-        callDCD(modeloption,leachoption,endyear,outputfile)
-    elif modeloption == 1 or modeloption == 3:
-        (endyear,outputfile) = callDETAW(modeloption)
-        callDCD(modeloption,leachoption,endyear,outputfile)
+    #if modeloption == 2:
+    #    (endyear,outputfile) = callDETAW(1)
+    #    callDCD(1,leachoption,endyear,outputfile)
+    #    shutil.copy(owd+"\\Output\\DSM2\\"+outputfile,owd+"\\Output\\SCHISM\\")
+    #    tempfile = outputfile.split(".")[0].strip()+"_leach"+str(leachoption)+".dss"
+    #    if os.path.exists(owd+"\\Output\\SCHISM\\"+tempfile):
+    #        os.remove(owd+"\\Output\\SCHISM\\"+tempfile)
+    #    os.rename(owd+"\\Output\\SCHISM\\"+outputfile,owd+"\\Output\\SCHISM\\"+tempfile)
+    #    (endyear,outputfile) = callDETAW(modeloption,leachoption)
+    #    callDCD(modeloption,leachoption,endyear,outputfile)
+    #elif modeloption == 1 or modeloption == 3:
+    #    (endyear,outputfile) = callDETAW(modeloption,leachoption)
+    #    callDCD(modeloption,leachoption,endyear,outputfile)
+    (endyear,outputfile) = callDETAW(modeloption,leachoption)
+    callDCD(modeloption,leachoption,endyear,outputfile)
     print("output file =", outputfile)
     
 
