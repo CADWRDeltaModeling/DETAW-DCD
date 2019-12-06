@@ -144,19 +144,6 @@ def main():
                 if "Leach scale factor" in line:
                     leachoption = int(line.split("=")[1])
     
-    #if modeloption == 2:
-    #    (endyear,outputfile) = callDETAW(1)
-    #    callDCD(1,leachoption,endyear,outputfile)
-    #    shutil.copy(owd+"\\Output\\DSM2\\"+outputfile,owd+"\\Output\\SCHISM\\")
-    #    tempfile = outputfile.split(".")[0].strip()+"_leach"+str(leachoption)+".dss"
-    #    if os.path.exists(owd+"\\Output\\SCHISM\\"+tempfile):
-    #        os.remove(owd+"\\Output\\SCHISM\\"+tempfile)
-    #    os.rename(owd+"\\Output\\SCHISM\\"+outputfile,owd+"\\Output\\SCHISM\\"+tempfile)
-    #    (endyear,outputfile) = callDETAW(modeloption,leachoption)
-    #    callDCD(modeloption,leachoption,endyear,outputfile)
-    #elif modeloption == 1 or modeloption == 3:
-    #    (endyear,outputfile) = callDETAW(modeloption,leachoption)
-    #    callDCD(modeloption,leachoption,endyear,outputfile)
     (endyear,outputfile) = callDETAW(modeloption,leachoption)
     callDCD(modeloption,leachoption,endyear,outputfile)
     print("output file =", outputfile)
