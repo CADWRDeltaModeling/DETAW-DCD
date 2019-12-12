@@ -43,7 +43,10 @@ def callDCD(supmodel,leachoption,endyear,outputfile):
     os.environ['DICU5.27']='../../../../DETAW/Output/DICU5.27' 
     os.environ['DICU5.30']='../../../../DETAW/Output/DICU5.30' 
     
-    os.environ['GW_RATES.TXT'] = '../../../NODCU/GW_RATES.TXT'   #update data in the file each year ----no adjustment-GW_RATES.TXT
+    if supmodel == 3:
+        os.environ['GW_RATES.TXT'] = '../../../NODCU/GW_RATES_CALSIM3.TXT'
+    else:
+        os.environ['GW_RATES.TXT'] = '../../../NODCU/GW_RATES.TXT'   #update data in the file each year ----no adjustment-GW_RATES.TXT
     os.environ['GW_LOWLANDS.TXT']='../../../NODCU/GW_LOWLANDS.TXT' #set for DETAW-CD
     os.environ['DIVFCTR.RMA']='../../../NODCU/DIVFCTR.DSM.2-92'
     os.environ['DRNFCTR.RMA']='../../../NODCU/DRNFCTR.DSM.2-92'
