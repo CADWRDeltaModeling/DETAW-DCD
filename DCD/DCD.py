@@ -146,7 +146,6 @@ def main():
                     modeloption = int(line.split("=")[1]) 
                 if "Leach scale factor" in line:
                     leachoption = int(line.split("=")[1])
-    
     (endyear,outputfile) = callDETAW(modeloption,leachoption)
     callDCD(modeloption,leachoption,endyear,outputfile)
     print("output file =", outputfile)
