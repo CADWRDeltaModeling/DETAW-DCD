@@ -1,0 +1,8 @@
+name: detaw_py27
+channels:
+  - cadwr-dms
+  - defaults
+dependencies:
+  - python=2.7
+  - vtools=1.1.1
+  - pydss=0.8
