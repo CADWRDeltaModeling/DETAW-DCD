@@ -6,3 +6,4 @@ dependencies:
   - python=2.7
   - vtools=1.1.1
   - pydss=0.8
+  - pywin32
