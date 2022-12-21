@@ -1,3 +1,5 @@
+# This is a release branch 1.3.x based on enhanced legacy code.
+
 # Channel Depletions Model
 Code repo for [DETAW](https://water.ca.gov/Library/Modeling-and-Analysis/Bay-Delta-Region-models-and-tools/DETAW) and [DCD](https://water.ca.gov/Library/Modeling-and-Analysis/Bay-Delta-Region-models-and-tools/DCD) models 
 
